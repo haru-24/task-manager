@@ -20,7 +20,7 @@ type userUsecase struct {
 }
 
 func NewUserUsecase(ur repository.IUserRepository) IUserUsecase {
-	return &userUsecase(ur)
+	return &userUsecase{ur}
 }
 
 func (uu *userUsecase) SignUp(user model.User) (model.UserResponse, error) {
