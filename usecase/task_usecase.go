@@ -3,6 +3,7 @@ package usecase
 import (
 	"task-manager/model"
 	"task-manager/repository"
+	"task-manager/validator"
 )
 
 type ITaskUsecase interface {
@@ -15,10 +16,11 @@ type ITaskUsecase interface {
 
 type taskUsecase struct {
 	tr repository.ITaskRepository
+	tv validator.ITaskValidator
 }
 
-func NewTaskUsecase(tr repository.ITaskRepository) ITaskUsecase {
-	return &taskUsecase{tr}
+func NewTaskUsecase(tr repository.ITaskRepository, tv validator.ITaskValidator) ITaskUsecase {
+	return &taskUsecase{tr, tv}
 }
 
 func (tu *taskUsecase) GetAllTasks(userId uint) ([]model.TaksResponse, error) {
@@ -55,6 +57,11 @@ func (tu *taskUsecase) GetTaskById(userId uint, taskId uint) (model.TaksResponse
 }
 
 func (tu *taskUsecase) CreateTask(task model.Task) (model.TaksResponse, error) {
+	// validate
+	if err := tu.tv.TaskValidate(task); err != nil {
+		return model.TaksResponse{}, err
+	}
+
 	if err := tu.tr.CreateTask(&task); err != nil {
 		return model.TaksResponse{}, err
 
@@ -69,6 +76,11 @@ func (tu *taskUsecase) CreateTask(task model.Task) (model.TaksResponse, error) {
 }
 
 func (tu *taskUsecase) UpdateTask(task model.Task, userId uint, taskId uint) (model.TaksResponse, error) {
+	// validate
+	if err := tu.tv.TaskValidate(task); err != nil {
+		return model.TaksResponse{}, err
+	}
+
 	if err := tu.tr.UpdateTask(&task, userId, taskId); err != nil {
 		return model.TaksResponse{}, err
 	}
